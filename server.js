@@ -1,4 +1,5 @@
 const express = require("express");
+const convert = require("xml-js");
 
 const app = express();
 const PORT = 3000;
@@ -19,54 +20,30 @@ app.post("/convert", (req, res) => {
 });
 
 //=================funció a completar===========================================
-app.post("/convertTOXMl", (req, res) => {
+app.post("/convertToXML", (req, res) => {
   const { data } = req.body;
-   let textRebut='{"id":1,"nom":Anna,"edat":20,"curs":"DAM"}'; 
-   //a data esperem un text similar al de dalt
-   textRebut = data; //guardem el text real que envia el usuari 
-   // com el json que rebrem es de tipus simple, sense objectes ni llistes netejerem l'string per treballar millor.
-   textRebut= textRebut.replace("{",""); //eliminem del string la clau d'obertura
-   textRebut= textRebut.replace("}",""); //eliminem del string la clau de tancament
-   textRebut = textRebut.replace(/"/g, ""); //eliminem del string tots els ""
-   
-   //key1:value1,key2:value2,key3:value3  us pudeo imaginar un resultat com aquest
-
-   //Sabem que per cada key del json haurem de crear una etiqueta i aquesta tindra com a contingut el value
-
-
-   let keyvalues =[];//declarem una llista buida
-   keyvalues = textRebut.split(",");// si ha un string  li apliquem split, guardem una llista de elements separats per el carcter
-   let keys=[]; //aqui guardarem les keys després
-   let values =[]; // i aquí els values
-   for(let i=0; i < keyvalues.length;i++) //aquest for permet un bucle que recorre tots els keyvalues
-    {
-       let temp= keyvalues[i].split(":") // separem el string en dos parts per el :
-       keys.push(temp[0]);// la primera part(la 0) sera la key i la afegim  a la llista de keys.
-       values.push(temp[1]);// la segona part sera el value i la afegim a la llista de values.
-    }
-
-   let xml="";//declarem un string
-   xml +="<arrel>";//afegim al string un tros de text
-   //
-   for(let i =0;i<keys.length;i++)
-    {
-        //ara en aquest bucle hauras de afegir els trossos que fan falta a l'xml per passar l'informació.
-
-        //pista keys[i] accedeix a la llista de keys i posa el text que hem guardat abans, el mateix amb values[i]
-        xml+="<";
-        xml += keys[i];
-        xml += ">";
-        xml += values[i];
-        xml += "</";
-        xml += keys[i];
-        xml += ">";
-        //continua per aquí!
-      }
-    xml +="</arrel>";
-    console.log(xml);
-    result = xml;
-
+  
+  const obj = JSON.parse(data);
+  let result1 = convert.json2xml(obj, { compact: true, spaces: 4 });
+  const result = result1;
   res.json({ result });
+});
+
+app.post("/convertToJSON", (req, res) => {
+  try {
+    const { data } = req.body;
+    console.log("XML rebut:", data);
+    
+    // Convertir XML a JSON
+    const jsonObj = convert.xml2json(data, { compact: true, spaces: 4 });
+    console.log("JSON generat:", jsonObj);
+    
+    const result = jsonObj;
+    res.json({ result });
+  } catch (error) {
+    console.error("Error:", error.message);
+    res.json({ result: "Error: XML inválid - " + error.message });
+  }
 });
 
 app.listen(PORT, () => {

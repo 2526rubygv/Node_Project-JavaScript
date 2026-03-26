@@ -46,6 +46,33 @@ app.post("/convertToJSON", (req, res) => {
   }
 });
 
+
+app.post("/convertPokemonxml", async (req, res) => {
+  const { data } = req.body;
+
+  const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${data}`);
+  const PokemonJSON = await response.json();
+  const result = convert.json2xml(PokemonJSON, { compact: true, spaces: 4 });
+  res.json({ result });
+});
+
+app.post("/pokemonHabilidades", async (req, res) => {
+  const { data } = req.body;
+  const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${data}`);
+  const PokemonJSON = await response.json();
+  const result = convert.json2xml(PokemonJSON, { compact: true, spaces: 4 });
+  res.json({ result });
+});
+
+app.post("/pokemonImagen", async (req, res) => {
+  const { data } = req.body;
+  const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${data}`);
+  const PokemonJSON = await response.json();
+  const result = PokemonJSON.sprites.front_default;
+  res.json({ result });
+});
+
+
 app.listen(PORT, () => {
   console.log(`Servidor a http://localhost:${PORT}`);
 });
